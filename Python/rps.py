@@ -1,20 +1,17 @@
 import random
-d=0
-l=0
-w=0
 d={"Draw":0,"Lose":0,"Win":0}
 exit=False
 def main():
     while exit!=True:
-        options=["rock","paper","scissors"]
+        items=["rock","paper","scissors"]
         # player draws
-        player=convert(input("Player: "),options)
+        player=convert(input("Player: "),items)
         
         # computer draws
-        computer=random.randint(0,len(options)-1)
+        computer=random.randint(0,len(items)-1)
 
-        # what computer drew
-        print(f"Computer: {options[computer]}")
+        # item the computer drew
+        print(f"Computer: {items[computer]}")
 
         # get result
         draw(player,computer)
@@ -23,19 +20,25 @@ def main():
         try_again()
 
 def convert(input,rps):
+    # return the index value of the chosen item
     for i in rps:
         first_letter=i[0]
         if input.startswith(first_letter):
             return rps.index(i)
 
 def draw(user,cpu):
-    global d,l,w
+    global d
     results=["Draw","Lose","Win"]
-    print(results[(user-cpu)%3])
-    d[results[(user-cpu)%3]]+=1
+    r=(user-cpu+3)%3
+
+    # print the item of the index `r`
+    print(results[r])
+
+    # update the values in dictionary `d`
+    d[results[r]]+=1
 
 def try_again():
-    global exit, d, l, w
+    global exit, d
     while True:
         response=input("try again? or type 's' to see W/L ")
         # no
@@ -44,8 +47,9 @@ def try_again():
             break
         # stats
         elif response.startswith("s"):
-            print(f"draw: {d}    lose: {l}    win: {w}")
+            print("draw: {}    lose: {}    win: {}".format(*d.values()))
         # yes
         else:
             break
+        
 main()
