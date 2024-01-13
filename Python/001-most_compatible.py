@@ -33,7 +33,7 @@ def simulate(amount=1):
             # OR the person is the last
             if date>max(comparison_list) or date==people_group[-1]:
 
-                # Count how many times we encountered the highest rated person among all simulations
+                # Count how many times we encountered the highest-rated person among all simulations
                 if date==100:
                     chosen_max_count+=1
 
