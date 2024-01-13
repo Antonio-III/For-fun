@@ -57,8 +57,9 @@ def simulate(amount=1):
 
 # Execution the simulation
 simulate(
-        # Remove the "#" and replace this text with a number
-        # The higher you go, the longer it takes
+        100
+        # Replace the number with any number, bigger numbers will take longer to finish, 
+        # So maybe cap it to 10,000
         )
 
     
