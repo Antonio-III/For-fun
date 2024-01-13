@@ -3,8 +3,8 @@
  Comment if you have suggestions
 
 # Video sources: 
-C: 
-0: https://www.youtube.com/watch?v=dti0F7w3yOQ
-Python:
-0: https://www.youtube.com/watch?v=dwuKQXcXM7w
-1: https://www.youtube.com/watch?v=GFvkcLF50VI
+C:\n
+0: https://www.youtube.com/watch?v=dti0F7w3yOQ\n
+Python:\n
+0: https://www.youtube.com/watch?v=dwuKQXcXM7w\n
+1: https://www.youtube.com/watch?v=GFvkcLF50VI\n
