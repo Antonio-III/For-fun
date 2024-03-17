@@ -1,4 +1,5 @@
 import keyboard
+import time
 
 def main():
     while True:
@@ -8,6 +9,7 @@ def main():
 
 def start_loop():
     while True:
-        print("1")
+        keyboard.press_and_release("esc")
+        time.sleep(2)
 
 main()
