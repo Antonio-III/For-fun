@@ -8,6 +8,6 @@ def main():
 
 def start_loop():
     while True:
-        keyboard.press_and_release("esc")
+        print("1")
 
 main()
