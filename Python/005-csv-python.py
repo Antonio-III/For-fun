@@ -42,42 +42,42 @@ def filtered_rows( input_csv_file_dir: str, columns_where_the_conditions_are: li
     special_conditions = {"not": "!=", "greater_than": ">", "less_than": "<"}
 
     with open( input_csv_file_dir, "r" ) as opened_file:
+        opened_file = csv.reader(opened_file)
         
-        
-             
-        for row in opened_file:
-            if skip_first_line == True:
-            
-                skip_first_line = None
-                continue
+        if skip_first_line:
+            next(opened_file)
 
-            full_row = row.strip().split(",") # for some reason just `row[0]`` refers to the FIRST CHARACTER (not Element) in that row, so we split elements instead and use the returned list for indexes.
+        for row in opened_file:
+            
             conditions_met = True
             
             
             for column, condition in zip( columns_where_the_conditions_are, conditions_must_be ):
-                column_index = column - 1 # Users will input the column number starting from 1. We offset by 1.
+                column_index = column - 1 # Users will input the column number starting from 1. We offset by 1. Hard coded
 
-                splitted_condition = condition.lower().split("-")
-                # reassigned `column` from `line 58``
-                special_word, condition = splitted_condition if len(splitted_condition) >= 2 else ( None, condition.lower() )
+                splitted_condition = condition.lower().split( "-" ) # Will look like: ["not", "abc"] or ["abc"] when passed ["not-abc"] or ["abc"]
+                splitted_condition[ len(splitted_condition)-1 ] = [ ord(i) for i in splitted_condition[-1] ] # Will be like [123]. "abc" became `[int("123")]`. Note that it became a list as well. It is also hard coded in a way the last element ought to be the value we're looking for
 
-                curr_val_in_column = full_row[column_index].lower()
-                
+                # special_condition will be: [ "not", [123] ] or [ 123 ]
+
+                # reassigned `condition` from `line 55`
+                special_word, condition = splitted_condition if len( splitted_condition ) >= 2 else ( None, splitted_condition[-1] )
+
+                val_in_col_nums = [ ord(i) for i in row[column_index].lower() ]
+
                 try:
-                    if eval(f"""{curr_val_in_column} {special_conditions.get(special_word, "==")} {condition}"""):
-                        continue # move to next iter of `line 58`
+                    if eval(f"""{val_in_col_nums} {special_conditions.get(special_word, "==")} {condition}"""):
+                        continue # move to next iter of `line 55`
                     else:
                         conditions_met = False
-                        break # move to `line 78`
+                        break # move to `line 79`
                     
-
                 except IndexError:
                     print( "Last 2 arguments must be the same length" )
                     return []
                 
             if conditions_met:
-                result.append( full_row )
+                result.append( row )
         
         return result
 
@@ -89,12 +89,12 @@ def get_unique_values( input_csv_file_dir: str, target_column: int,  ):
     with open(input_csv_file_dir, "r", ) as file:
 
         for index, row in enumerate(file):
-            full_row = row.strip().split(",")
+            row = row.strip().split(",")
             
             if index == 0:
                 continue
 
-            names.append( full_row[column_index] )
+            names.append( row[column_index] )
 
     return sorted( set(names) )
 
@@ -111,4 +111,4 @@ def create_nested_loops( starting_index: int = 0, starting_list: list = [] ):
     # write your function nigga
     pass
     
-filtered_rows("mod_ds_salaries.csv", [2,3],["MI", "Data Scientist"])
+print(filtered_rows("mod_ds_salaries.csv", [2,3],["MI","Data Scientist"]))
