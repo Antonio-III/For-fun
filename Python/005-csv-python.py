@@ -12,10 +12,10 @@ def create_mod_file( input_csv_file_dir: str, name_new_file: str, include_column
         for entry in filtered_rows( input_csv_file_dir, columns_where_the_conditions_are, conditions_must_be ):
             created_file.writerow(  [ entry[i] for i in include_columns ] )
 
-    return created_file
+    return created_file # optional
 
 
-def get_avg( input_csv_file_dir: str, column_to_get_avg_of: int, columns_where_the_conditions_are: list, conditions_must_be: list, rounded_to: int = 0  ):
+def get_avg( input_csv_file_dir: str, column_to_get_avg_of: int, columns_where_the_conditions_are: list = [], conditions_must_be: list = [], rounded_to: int = 0  ):
     
     rows = filtered_rows( input_csv_file_dir, columns_where_the_conditions_are, conditions_must_be )
 
@@ -36,37 +36,40 @@ def get_avg( input_csv_file_dir: str, column_to_get_avg_of: int, columns_where_t
 # If you want to have non-equal comparisons, use `greater_than`, `less_than`, `not`, separated by `-`. 
 # Ex: filtered_rows("test.csv", "4", "less_than-0").
     # This returns rows with values that are `less than 0` in column `4`. 
-def filtered_rows( input_csv_file_dir: str, columns_where_the_conditions_are: list, conditions_must_be: list, skip_first_line: bool = True ):
+def filtered_rows( input_csv_file_dir: str, columns_where_the_conditions_are: list = [], conditions_must_be: list = [], skip_first_line: bool = True ):
     result = []
 
     special_conditions = {"not": "!=", "greater_than": ">", "less_than": "<"}
 
     with open( input_csv_file_dir, "r" ) as opened_file:
         
+        
+             
         for row in opened_file:
             if skip_first_line == True:
             
-                skip_first_line= False
+                skip_first_line = None
                 continue
 
-            full_row = row.strip().split(",") # for some reason just `row[0]`` refers to the FIRST CHARACTER IN THAT ROW, so we split elements instead and use the returned list for indexes.
+            full_row = row.strip().split(",") # for some reason just `row[0]`` refers to the FIRST CHARACTER (not Element) in that row, so we split elements instead and use the returned list for indexes.
             conditions_met = True
-           
+            
             
             for column, condition in zip( columns_where_the_conditions_are, conditions_must_be ):
                 column_index = column - 1 # Users will input the column number starting from 1. We offset by 1.
 
                 splitted_condition = condition.lower().split("-")
-                # reassigned `column` from line 46
-                special_word, condition = splitted_condition if len(splitted_condition) >= 2 else ( None, condition )
-                
+                # reassigned `column` from `line 58``
+                special_word, condition = splitted_condition if len(splitted_condition) >= 2 else ( None, condition.lower() )
+
+                curr_val_in_column = full_row[column_index].lower()
                 
                 try:
-                    if eval(f"""{full_row[column_index]} {special_conditions.get(special_word, "==")} {condition} """):
-                        continue # move to next iter of `line 56`
+                    if eval(f"""{curr_val_in_column} {special_conditions.get(special_word, "==")} {condition}"""):
+                        continue # move to next iter of `line 58`
                     else:
                         conditions_met = False
-                        break # move to `line 76`
+                        break # move to `line 78`
                     
 
                 except IndexError:
@@ -108,4 +111,4 @@ def create_nested_loops( starting_index: int = 0, starting_list: list = [] ):
     # write your function nigga
     pass
     
-print(filtered_rows("averages.csv",[4],["greater_than-50000"]))
+filtered_rows("mod_ds_salaries.csv", [2,3],["MI", "Data Scientist"])
