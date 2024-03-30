@@ -2,7 +2,7 @@ import csv
 from io import TextIOWrapper
 
 # step 1 (optional): create a filtered file 
-def create_mod_file( input_csv_file_dir: str, name_new_file: str, include_columns: list, columns_where_the_conditions_are: list, conditions_must_be: list ):
+def create_mod_file( input_csv_file_dir: str, name_new_file: str, include_columns: list, columns_where_the_conditions_are: list = [], conditions_must_be: list = [] ):
 
     
 
@@ -14,6 +14,13 @@ def create_mod_file( input_csv_file_dir: str, name_new_file: str, include_column
 
     return created_file # optional
 
+# Algorithm of `create_mod_file`:
+    # 0. Input directory and or file name of a csv. Input name of the created modified file. Input included columns. Input column numbers (int) who contain conditions you want to check (optional). Must be in a list object. Input `str` of what those conditions should be. Must be in a list object.`
+    # 1. Open file
+    # 2. Make `writer` object of said file, so we can access `writerow` method for later.
+    # 3. Iterate through a returned object from `filtered_rows`
+    # 4. Make generator object consisting of the current iteration's (named `entry`) elements. 
+    # 5. Pass this generator object to `writerow` method of the `writer` object, essentially creating 
 
 def get_avg( input_csv_file_dir: str, column_to_get_avg_of: int, columns_where_the_conditions_are: list = [], conditions_must_be: list = [], rounded_to: int = 0  ):
     
@@ -23,7 +30,7 @@ def get_avg( input_csv_file_dir: str, column_to_get_avg_of: int, columns_where_t
     column_index = column_to_get_avg_of - 1
     
     for element in rows:
-        target.append( element[column_index] )
+        target.append( element[column_index] ) # element[column_index] MUST be an int
 
     numerator =  sum( [int(i) for i in target] )
     denominator = len( target )
@@ -35,7 +42,7 @@ def get_avg( input_csv_file_dir: str, column_to_get_avg_of: int, columns_where_t
 
 # If you want to have non-equal comparisons, use `greater_than`, `less_than`, `not`, separated by `-`. 
 # Ex: filtered_rows("test.csv", "4", "less_than-0").
-    # This returns rows with values that are `less than 0` in column `4`. 
+    # This returns rows with values that are `condition <0` in column `4`. 
 def filtered_rows( input_csv_file_dir: str, columns_where_the_conditions_are: list = [], conditions_must_be: list = [], skip_first_line: bool = True ):
     result = []
 
@@ -99,7 +106,7 @@ def get_unique_values( input_csv_file_dir: str, target_column: int,  ):
     return sorted( set(names) )
 
 # step 2 (the only good thing in this script): write a csv file with the calculated column_4s 
-def create_avg_csv(input_csv_file_dir: str, file_name: str, header: list, column_to_get_avg_of: int, columns_where_the_conditions_are: list,  ):
+def create_avg_csv(input_csv_file_dir: str, file_name: str, header: list, column_to_get_avg_of: int, get_uniq_val_in_this_cols: list,  ):
     with open( file_name, "w", newline="" ) as mod:
         created_file = csv.writer( mod )
 
