@@ -1,6 +1,5 @@
 # For-fun
- Download the files if you want to use them. Check the very bottom of the code source for instructions (if any), else just run it. You will need to install visual studio, though.
- Comment if you have suggestions
+An archive for all the code I've written over time.
 
 # Video sources: 
 C:
