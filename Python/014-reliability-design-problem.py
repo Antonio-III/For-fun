@@ -1,16 +1,20 @@
-
-COLUMNS=4
-HEADER_COLS = ["D_i","C_i","r_i","u_i"]
-DEVICES_TESTING = 3 # REMOVE LATER
-ROUND_N_PLACES=4
-STARTING_SET = {"S^0": {"S^0_0": [(1,0)]} }
-
 def main():
-    output = solv_reliability_design(c=105, devices=3, cost=[30,15,20],reliability_list=[.9,.8,.5],starting_set=STARTING_SET)
+    try:
+        c=convert_input_to_int(text="Enter amount of capital:\n")
+        devices= convert_input_to_int(text="Enter number of devices:\n")
+        
+        cost=convert_input_to_list_of_ints(text="Enter cost per row. Example input: 30, 40, 50\n",split=",")
+        reliability=convert_input_to_list_of_floats(text="Enter reliability per row. Example input: 0.9, 0.8, 0.7\n",split=",")
+
+        if len_args_not_equal_to_comp(cost,reliability,comp=devices):
+            raise RuntimeError("cost or reliability must be the same length as the amount of devices.")
+        
+    except KeyboardInterrupt:
+        pass 
+    output = solv_reliability_design(c=c, devices=devices, cost=cost,reliability=reliability,starting_set=STARTING_SET)
     print(output)
 
-def solv_reliability_design(c:int,devices:int,cost:list,reliability_list:list,starting_set:dict):
-
+def solv_reliability_design(c:int,devices:int,cost:list,reliability:list,starting_set:dict):
     def get_rc_for_all_devices(devices:int,c_i:list,r_i:list,u_i:list,starting_set:dict):
         all_sets = starting_set
         for d in range(devices):
@@ -78,18 +82,18 @@ def solv_reliability_design(c:int,devices:int,cost:list,reliability_list:list,st
     D_i = [f"D_{i}" for i in range(1,devices+1)]
     U_i = find_upper_bound(c=c,cost=cost)
 
-    table = create_table(devices+1,COLUMNS)
+    table = create_table(rows=devices+1,columns=COLUMNS)
 
     table = replace_row(table=table,pos=1,value=HEADER_COLS)
 
     table = replace_col(table=table,pos=1,value=D_i,ignore_header=True)
     table = replace_col(table=table,pos=2,value=cost,ignore_header=True)
-    table = replace_col(table=table,pos=3,value=reliability_list,ignore_header=True)
+    table = replace_col(table=table,pos=3,value=reliability,ignore_header=True)
     table = replace_col(table=table,pos=4,value=U_i,ignore_header=True)
 
-    c_i = extract_col(table=table,n=2,ignore_header=True)
-    r_i = extract_col(table=table,n=3,ignore_header=True)
-    u_i = extract_col(table=table,n=4,ignore_header=True)
+    c_i = extract_col(table=table,pos=2,ignore_header=True)
+    r_i = extract_col(table=table,pos=3,ignore_header=True)
+    u_i = extract_col(table=table,pos=4,ignore_header=True)
     
     all_sets = get_rc_for_all_devices(devices=devices,c_i=c_i,r_i=r_i,u_i=u_i,starting_set=starting_set)
     all_main_sets = get_main_set_from_all_sets(all_sets=all_sets)
@@ -170,18 +174,18 @@ def replace_col(table:list,pos:int,value:list,ignore_header:bool):
     for row,new_val in zip(table[1:] if ignore_header else table[:],value):
         row[pos-1]=new_val
     return table
-def extract_col(table:list,n:int,ignore_header:bool):
+def extract_col(table:list,pos:int,ignore_header:bool):
     """
-    1. Get a list of elements in `n-1`th position of every child list (rows).
+    1. Return a list of elements in the `n-1`th position of every row.
         1. `n` is 1-indexed.
     2. Has an option to ignore the first row (ignore_header:bool).
     3. Example: extract_col(table=table,n=1,ignore_header=True):
         1. if table =  [[1,2,3],
-                    [4,5,6],
-                    [7,8,9]]
+                       [4,5,6],
+                       [7,8,9]]
         2. return: [4,7].
     """
-    return [ row[n-1] for row in (table[1:] if ignore_header else table[:]) ]
+    return [ row[pos-1] for row in (table[1:] if ignore_header else table[:]) ]
 
 def d_first_key_is_k(d:dict,k):
     """
@@ -330,18 +334,15 @@ def get_subsets_only_from_all_sets(all_sets:dict):
     STOPPED HERE
     1. Return a dict containing only subsets as keys & their respective (R,C) values.
     2. Example:
-        1. all_sets = {'S^1': {'S^1_1': [(0.9, 30)], 'S^1_2': [(0.99, 60)]}}
-        2. return: {'S^1_1': [(0.9, 30)], 'S^1_2': [(0.99, 60)]}
-            1. The main set S^1 has been removed, with only subsets remaining.
+        1. all_sets = {'S^0': {'S^0_0': [(1, 0)]}, 'S^1': {'S^1_1': [(0.9, 30)], 'S^1_2': [(0.99, 60)]}}
+        2. return: {S^0_0: [(1, 0)], 'S^1_1': [(0.9, 30)], 'S^1_2': [(0.99, 60)]}
+            1. The main sets S^0 and S^1 have been removed, with only subsets remaining.
     """
     d = {}
-    for main_set in all_sets.keys():
-        for subset in all_sets[main_set]:
-            d[subset]=all_sets[main_set][subset]
 
-    # FIX
-    for i in range(len(all_sets.keys())):
-        pass
+    for value in all_sets.values():
+        for subset in value.keys():
+            d[subset]=value[subset] 
 
     return d
 
@@ -371,5 +372,41 @@ def get_subsets_only_under_nth_main_set(n:int,all_sets:dict):
             d[subset_key]=all_sets[main_set_name][subset_key]
 
         return d
+
+def len_args_not_equal_to_comp(*args,comp):
+    comp = int(comp)
+    return any([(len(arg)!=comp) for arg in args])
+
+def convert_input_to_list_of_ints(text:str,sep=" "):
+    s = input(text)
+    try:
+        l = [int(i) for i in s.split(sep=sep)]
+    except ValueError:
+        raise ValueError(f"Entered value isn't all convertible to `int` type: {s}")
+    else:
+        return l
+    
+def convert_input_to_list_of_floats(text:str,sep=" "):
+    s = input(text)
+    try:
+        l = [float(i) for i in s.split(sep=sep)]
+    except ValueError:
+        raise ValueError(f"Entered value isn't all convertible to `float` type: {s}")
+    else:
+        return l
+    
+def convert_input_to_int(text:str):
+    s = input(text)
+    try:
+        i = int(s)
+    except ValueError:
+        raise ValueError(f"Entered value isn't all convertible to `int` type: {s}")
+    else:
+        return i
+
 if __name__ == "__main__":
+    COLUMNS=4
+    HEADER_COLS = ["D_i","C_i","r_i","u_i"]
+    ROUND_N_PLACES=4
+    STARTING_SET = {"S^0": {"S^0_0": [(1,0)]} }
     main()
