@@ -280,8 +280,9 @@ def del_dict_key_w_empty_val(d:dict):
             2. return: {1: [1]}
                 1. Since d[2] refers to an empty list, this pair is now removed.
         """
-        for subset in d.copy().keys():
-            if len(d.copy()[subset])==0:
+        d_copy = d.copy()
+        for subset in d_copy.keys():
+            if len(d_copy()[subset])==0:
                 del d[subset]
         return d
 
@@ -290,24 +291,7 @@ def rc_pairs_in_nth_main_set(n:int,all_sets:dict):
     1. Gets all the (R,C) values of a subset under the `n`th main set, and return all the collected pairs in a list.
     2. Example:
         1. n = 2
-        2. all_sets = {
-        'S^0': 
-            {'S^0_0': 
-                [(1, 0)]
-            }, 
-        'S^1': 
-            {'S^1_1': 
-                [(0.9, 30)], 
-            'S^1_2': 
-                [(0.99, 60)]
-            }, 
-        'S^2': 
-            {'S^2_1': 
-                [(0.72, 45), (0.792, 75)], 
-            'S^2_2': 
-                [(0.864, 60)]
-            }
-        }
+        2. all_sets = {'S^0': {'S^0_0': [(1, 0)]}, 'S^1': {'S^1_1': [(0.9, 30)], 'S^1_2': [(0.99, 60)]}, 'S^2': {'S^2_1': [(0.72, 45), (0.792, 75)], 'S^2_2': [(0.864, 60)]}}
         3. return: [(0.72, 45), (0.792, 75), (0.864, 60)].
             1. These values were under the subsets that belong to the second main set (`S^2`).
     """
@@ -368,7 +352,7 @@ def find_rc_pair_index_in_all_subsets(rc_pair:tuple,all_subsets:dict):
 def get_subsets_only_under_nth_main_set(n:int,all_sets:dict):
         d = {}
         main_set_name = f"S^{n}"
-        for subset_key in all_sets[main_set_name]:
+        for subset_key in all_sets[main_set_name].keys():
             d[subset_key]=all_sets[main_set_name][subset_key]
 
         return d

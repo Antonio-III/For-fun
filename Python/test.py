@@ -1,20 +1,12 @@
-def get_subsets_only_from_all_sets(all_sets:dict):
-    """
-    STOPPED HERE
-    1. Return a dict containing only subsets as keys & their respective (R,C) values.
-    2. Example:
-        1. all_sets = {'S^0': {'S^0_0': [(1, 0)]}, 'S^1': {'S^1_1': [(0.9, 30)], 'S^1_2': [(0.99, 60)]}}
-        2. return: {S^0_0: [(1, 0)], 'S^1_1': [(0.9, 30)], 'S^1_2': [(0.99, 60)]}
-            1. The main sets S^0 and S^1 have been removed, with only subsets remaining.
-    """
-    d = {}
-    for main_set in all_sets.keys():
-        for subset in all_sets[main_set]:
-            d[subset]=all_sets[main_set][subset]
-
- 
-
-    return d
+def args_match_dtype(*args,dtype):
+    try:
+        for arg in args:
+            val = eval("type(arg)==dtype")
+    except Exception as e:
+        raise e(f"Cannot convert {arg} to {dtype}.")
+    else:
+        if val ==False:
+            raise Exception(f"Cannot convert '{arg}' to {dtype}.")
 
 
 
@@ -32,6 +24,6 @@ d = {'S^0_0': [(1, 0)]}
 d2={'S^1_1': [(0.9, 30)], 'S^1_2': [(0.99, 60)]}
 
 
-out = get_subsets_only_from_all_sets(all_sets=all_sets)
+out = args_match_dtype("stringdatatype",dtype=int)
 print(out)
 
