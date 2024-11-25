@@ -1,17 +1,15 @@
-def args_match_dtype(*args,dtype):
-    try:
-        for arg in args:
-            val = eval("type(arg)==dtype")
-    except Exception as e:
-        raise e(f"Cannot convert {arg} to {dtype}.")
-    else:
-        if val ==False:
-            raise Exception(f"Cannot convert '{arg}' to {dtype}.")
+def find_rc_pair_index_in_all_subsets(rc_pair:tuple,all_subsets:dict):
+      for subset,rc_pairs in all_subsets.items():
+          if rc_pair in rc_pairs:
+              return all_subsets[subset].index(rc_pair)
+
 
 
 
 all_sets = {'S^0': {'S^0_0': [(1, 0)]}, 'S^1': {'S^1_1': [(0.9, 30)], 'S^1_2': [(0.99, 60)]}, 'S^2': {'S^2_1': [(0.72, 45)], 'S^2_2': [(0.864, 60)], 'S^2_3': [(0.8928, 75)]}, 'S^3': {'S^3_1': [(0.36, 65), (0.432, 80)], 'S^3_2': [(0.54, 85), (0.648, 100)]}}
-all_main_sets = {'S^0': [(1, 0)], 'S^1': [(0.9, 30), (0.99, 60)], 'S^2': [(0.72, 45), (0.864, 60), (0.8928, 75)], 'S^3': [(0.36, 65), (0.432, 80), (0.54, 85), (0.648, 100)]}
+
+all_main_sets = {'S^0': [(1, 0)], 'S^1': [(0.9, 30), (0.99, 60)], 'S^2': [(0.72, 45), (0.864, 60), (0.8928, 75)]}
+
 all_subsets = {'S^0_0': [(1, 0)], 'S^1_1': [(0.9, 30)], 'S^1_2': [(0.99, 60)], 'S^2_1': [(0.72, 45)], 'S^2_2': [(0.864, 60)], 'S^2_3': [(0.8928, 75)], 'S^3_1': [(0.36, 65), (0.432, 80)], 'S^3_2': [(0.54, 85), (0.648, 100)]}
                                                 
 d = {'S^2_1': [(0.72, 45), (0.6792, 75)], 'S^2_2': [(0.464, 60)], 'S^2_3': [(0.8928, 75)]}
@@ -23,7 +21,6 @@ devices = 3
 d = {'S^0_0': [(1, 0)]}
 d2={'S^1_1': [(0.9, 30)], 'S^1_2': [(0.99, 60)]}
 
-
-out = args_match_dtype("stringdatatype",dtype=int)
+out = find_rc_pair_index_in_all_subsets(rc_pair=(0.8928, 75), all_subsets=all_subsets)
 print(out)
 

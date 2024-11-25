@@ -6,7 +6,7 @@ def main():
         cost=convert_input_to_list_of_ints(text="Enter cost per row. Example input: 30, 40, 50\n",split=",")
         reliability=convert_input_to_list_of_floats(text="Enter reliability per row. Example input: 0.9, 0.8, 0.7\n",split=",")
 
-        if len_args_not_equal_to_comp(cost,reliability,comp=devices):
+        if len_args_not_equal_to_num(cost,reliability,num=devices):
             raise RuntimeError("cost or reliability must be the same length as the amount of devices.")
         
     except KeyboardInterrupt:
@@ -143,41 +143,45 @@ def create_table(rows:int,columns:int):
 
 def replace_row(table:list,pos:int,value:list):
     """
-    1. Replaces `pos-1`th row from `table`. 
-        1. `pos` is 1-indexed. 
-    2. To replace a row is to overwrite previous data in `table[pos-1]`
+    1. Replaces `pos`th row from `table`. 
+        1. `pos` is 1-indexed as an argument and is adjusted to be 0-indexed. Any reference to `pos` from this point on is 0-index.
+    2. Replacing a row overwrites previous data in `table[pos]`.
     3. Example: replace_row(table=table,pos=1,value=[1,2,3]) returns:
         [[1,2,3],
         [0,0,0]]
     """
-    try:
-        table[pos-1] = value
-    except IndexError as r:
-        raise r(f"Row {pos} in {table} does not exist. Cannot complete action.")
-    else:
-        return table
+    pos-=1
+    if len_args_equal_to_len_comp(value,comp=table[pos]):
+        try:
+            table[pos] = value
+        except IndexError as e:
+            raise e(f"Row index {pos} in table does not exist.")
+        else:
+            return table
 def insert_row(table:list,pos:int,value:list):
     """
     1. Insert a list in table's `pos-1`th index. 
-        1. `pos` is 1-indexed.
+        1. `pos` is 1-indexed as an argument and is adjusted to be 0-indexed. Any reference to `pos` from this point on is 0-index.
     2. Performs `table.insert(pos-1,value)`, and returns table.
     """
-    table.insert(pos-1,value)
+    pos-=1
+    table.insert(pos,value)
     return table
 def replace_col(table:list,pos:int,value:list,ignore_header:bool):
     """
     1. Replaces `pos-1`th column in table with `value` (list). 
-        1. `pos` is 1-indexed.
+        1. `pos` is 1-indexed as an argument and is adjusted to be 0-indexed. Any reference to `pos` from this point on is 0-index.
     2. Has an option to ignore header.
         Ignoring header means to slice table as table[1:] instead of table[:].
     """
+    pos-=1
     for row,new_val in zip(table[1:] if ignore_header else table[:],value):
-        row[pos-1]=new_val
+        row[pos]=new_val
     return table
 def extract_col(table:list,pos:int,ignore_header:bool):
     """
     1. Return a list of elements in the `n-1`th position of every row.
-        1. `n` is 1-indexed.
+        1. `pos` is 1-indexed as an argument and is adjusted to be 0-indexed. Any reference to `pos` from this point on is 0-index.
     2. Has an option to ignore the first row (ignore_header:bool).
     3. Example: extract_col(table=table,n=1,ignore_header=True):
         1. if table =  [[1,2,3],
@@ -185,7 +189,8 @@ def extract_col(table:list,pos:int,ignore_header:bool):
                        [7,8,9]]
         2. return: [4,7].
     """
-    return [ row[pos-1] for row in (table[1:] if ignore_header else table[:]) ]
+    pos-=1
+    return [ row[pos] for row in (table[1:] if ignore_header else table[:]) ]
 
 def d_first_key_is_k(d:dict,k):
     """
@@ -227,9 +232,9 @@ def apply_dominance_rule(d:dict):
         """
         1. Get a list of pairs in the ascending pairs list who have lower R & higher C than the next pair.
         2. Example:
-            1. if asc_r_pairs = [(.56, 65), (0.432, 80), (0.4464, 95), (0.54, 85)]
+            1. if asc_r_pairs = [(0.432, 80), (0.4464, 95), (0.54, 85)]
             2. return: [(0.4464, 95)].
-                This is because this pair has lower R & higher C than the next pair ((0.54, 85)).
+                This is because this pair has lower R & higher C than the next pair (0.54, 85).
         """
         bad_pairs = []
 
@@ -237,14 +242,11 @@ def apply_dominance_rule(d:dict):
             curr_pair=asc_r_pairs[i]
             prev_pair=(0,0) if i==0 else asc_r_pairs[i-1]
 
-            curr_r=curr_pair[0]
-            curr_c=curr_pair[1]
+            curr_r,curr_c=curr_pair
+            prev_r,prev_c=prev_pair
 
-            prev_r=prev_pair[0]
-            prev_c=0 if i==0 else prev_pair[1]
-            
-            if (prev_c>=curr_c) and (prev_r<=curr_r):
-                bad_pairs.append(min(curr_pair,prev_pair))
+            if (prev_r<=curr_r) and (prev_c>=curr_c):
+                bad_pairs.append(prev_pair)
 
         return bad_pairs   
 
@@ -287,6 +289,7 @@ def del_dict_key_w_empty_val(d:dict):
         return d
 
 def rc_pairs_in_nth_main_set(n:int,all_sets:dict):
+    # May need a rework
     """
     1. Gets all the (R,C) values of a subset under the `n`th main set, and return all the collected pairs in a list.
     2. Example:
@@ -297,7 +300,8 @@ def rc_pairs_in_nth_main_set(n:int,all_sets:dict):
     """
     def inputs_are_valid(n:int, all_sets:dict):
         """
-        1. Check if `n` is at most, equal to the `len(all_sets)-1`. 
+        1. Check if `n` is at most, equal to `len(all_sets)-1`. 
+            1. 
             1. Returns True if True, else raise ValueError.
         """
         if n<=len(all_sets)-1:
@@ -315,58 +319,73 @@ def rc_pairs_in_nth_main_set(n:int,all_sets:dict):
 
 def get_subsets_only_from_all_sets(all_sets:dict):
     """
-    STOPPED HERE
-    1. Return a dict containing only subsets as keys & their respective (R,C) values.
+    1. Return a dict containing only subsets as keys and their respective (R,C) pair as values.
     2. Example:
         1. all_sets = {'S^0': {'S^0_0': [(1, 0)]}, 'S^1': {'S^1_1': [(0.9, 30)], 'S^1_2': [(0.99, 60)]}}
         2. return: {S^0_0: [(1, 0)], 'S^1_1': [(0.9, 30)], 'S^1_2': [(0.99, 60)]}
             1. The main sets S^0 and S^1 have been removed, with only subsets remaining.
     """
-    d = {}
-
-    for value in all_sets.values():
-        for subset in value.keys():
-            d[subset]=value[subset] 
-
-    return d
+    return {k:v for value in all_sets.values() for k,v in value.items()}
 
 def get_main_set_from_all_sets(all_sets:dict):
-    main_set = "S^"
-    return {f"{main_set}{i}": rc_pairs_in_nth_main_set(n=i,all_sets=all_sets) for i in range(len(all_sets)) }
+    """
+    1. Return a dict containing main sets as keys and their subsets' (R,C) pair as values.
+    2. Example:
+        1. all_sets = {'S^0': {'S^0_0': [(1, 0)]}, 'S^1': {'S^1_1': [(0.9, 30)], 'S^1_2': [(0.99, 60)]}}
+        2. return: {'S^0': [(1, 0)], 'S^1': [(0.9, 30), (0.99, 60)]}
+            1. The subset names are removed and the main sets contain their subsets' values directly.
+    """
+    return {main_set: [rc_pairs for subset in subsets.values() for rc_pairs in subset ] for main_set,subsets in all_sets.items()}
 
 def main_set_of_rc_pair(rc_pair:tuple,all_main_sets:dict):
-    for main_set in all_main_sets:
-        if rc_pair in all_main_sets[main_set]:
-            return int(main_set[-1])
+    """
+    1. Return an 'int' that corresponds to the set number (0-indexed) an (R,C) pair belongs to. If there are duplicate values, the main set of the first match is returned.
+    2. Example: 
+        1. rc_pair = (0.8928, 75)
+        2. all_main_sets = {'S^0': [(1, 0)], 'S^1': [(0.9, 30), (0.99, 60)], 'S^2': [(0.72, 45), (0.864, 60), (0.8928, 75)]}
+        3. return: 2
+            1. The first match the pair (0.8928, 75) had was with main set S^2, which is main set 2 (the 3rd out of all main sets).
+    3. This function does not rely on the design that all main sets have their set number as the last character of their names.
+    """
+    for main_set,rc_pairs in all_main_sets.items():
+        if rc_pair in rc_pairs:
+            return list(all_main_sets.keys()).index(main_set)
         
 def subset_of_rc_pair(rc_pair:tuple,all_subsets:dict):
-    for subset in all_subsets:
-        if rc_pair in all_subsets[subset]:
+    """
+    1. Return an 'int' that corrsponds to the subset number (1-indexed) that an (R,C) pair belongs to. In Reliability Design, the subset number corresponds to the amount of copies a device is being evaluated as.
+    2. Example:
+        1. all_subsets = 'S^0_0': [(1, 0)], 'S^1_1': [(0.9, 30)], 'S^1_2': [(0.99, 60)]
+        2. rc_pair = (0.99, 60)
+        3. return: 2
+            1. The pair (0.99, 60) is first matched with the subset S^1_2, and this subset is the 2nd subset of S^1.
+            2. The value corresponds to the amount of copies needed to obtain the (R,C) pair.
+    3. This function relies on the design that the last character of a subset's name is the number of that subset.
+    """
+    for subset,rc_pairs in all_subsets.items():
+        if rc_pair in rc_pairs:
             return int(subset[-1])
 
+
 def find_rc_pair_index_in_all_subsets(rc_pair:tuple,all_subsets:dict):
-      for subset in all_subsets:
-          if rc_pair in all_subsets[subset]:
+      for subset,rc_pairs in all_subsets.items():
+          if rc_pair in rc_pairs:
               return all_subsets[subset].index(rc_pair)
           
 def get_subsets_only_under_nth_main_set(n:int,all_sets:dict):
-        d = {}
         main_set_name = f"S^{n}"
-        for subset_key in all_sets[main_set_name].keys():
-            d[subset_key]=all_sets[main_set_name][subset_key]
+        return {k: v for k,v in all_sets[main_set_name].items()}
 
-        return d
-
-def len_args_not_equal_to_comp(*args,comp):
-    comp = int(comp)
-    return any([(len(arg)!=comp) for arg in args])
+def len_args_not_equal_to_num(*args,num):
+    num = int(num)
+    return any([(len(arg)!=num) for arg in args])
 
 def convert_input_to_list_of_ints(text:str,sep=" "):
     s = input(text)
     try:
         l = [int(i) for i in s.split(sep=sep)]
     except ValueError:
-        raise ValueError(f"Entered value isn't all convertible to `int` type: {s}")
+        raise ValueError(f"Entered value isn't all convertible to 'int' type: {s}")
     else:
         return l
     
@@ -384,9 +403,15 @@ def convert_input_to_int(text:str):
     try:
         i = int(s)
     except ValueError:
-        raise ValueError(f"Entered value isn't all convertible to `int` type: {s}")
+        raise ValueError(f"Entered value isn't all convertible to 'int' type: {s}")
     else:
         return i
+
+def len_args_equal_to_len_comp(*args,comp):
+    for arg in args:
+        if len(arg)!=len(comp):
+            raise ValueError(f"Length of {arg} must match length of {comp}.")
+    return True
 
 if __name__ == "__main__":
     COLUMNS=4
