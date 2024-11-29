@@ -368,6 +368,9 @@ def subset_of_rc_pair(rc_pair:tuple,all_subsets:dict):
 
 
 def find_rc_pair_index_in_all_subsets(rc_pair:tuple,all_subsets:dict):
+      """
+      1. Return the index number of an (R,C) pair in its subset group.
+      """
       for subset,rc_pairs in all_subsets.items():
           if rc_pair in rc_pairs:
               return all_subsets[subset].index(rc_pair)
