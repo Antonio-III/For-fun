@@ -273,7 +273,7 @@ def apply_dominance_rule(d:dict)->dict[str:tuple[float,int]]:
 
     return remove_bpairs_from_d(d=d,bad_pairs=bad_pairs)
 
-def del_dict_key_w_empty_val(d:dict)->dict[any:iter]:
+def del_dict_key_w_empty_val(d:dict)->dict[any:any]:
         """
         1. Returns `d` with removed {k:v} pairs if v is empty.
             1. "Empty" means len(v)==0.
