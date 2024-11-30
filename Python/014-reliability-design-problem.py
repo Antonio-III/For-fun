@@ -1,4 +1,4 @@
-def main():
+def main()->None:
     try:
         c=convert_input_to_int(text="Enter amount of capital:\n")
         devices= convert_input_to_int(text="Enter number of devices:\n")
@@ -14,7 +14,7 @@ def main():
     output = solv_reliability_design(c=c, devices=devices, cost=cost,reliability=reliability,starting_set=STARTING_SET)
     print(output)
 
-def solv_reliability_design(c:int,devices:int,cost:list,reliability:list,starting_set:dict):
+def solv_reliability_design(c:int,devices:int,cost:list,reliability:list,starting_set:dict)->tuple[int,float]:
     def get_rc_for_all_devices(devices:int,c_i:list,r_i:list,u_i:list,starting_set:dict):
         all_sets = starting_set
         for d in range(devices):
@@ -105,7 +105,7 @@ def solv_reliability_design(c:int,devices:int,cost:list,reliability:list,startin
     return copies,highest_r_in_last_device
 
 
-def find_upper_bound(c:int,cost:list):
+def find_upper_bound(c:int,cost:list)->list[int]:
     """ 
     1. The functions fills in the values for the column `U_i` in the table:
         D_i | C_i | r_i | U_i
@@ -125,7 +125,7 @@ def find_upper_bound(c:int,cost:list):
         return [ ((c-sum_of_cost)//c_i)+1  for c_i in cost]
     
 
-def create_table(rows:int,columns:int):
+def create_table(rows:int,columns:int)->list[list[int]]:
     """
     1. Create a list containing `row` amount of child lists with `columns` amount of `0`  
     2. Example: create_table(2,3) returns:
@@ -139,9 +139,9 @@ def create_table(rows:int,columns:int):
         row 2 -> [0,0,0]]
     """
     return [ [0*j for j in range(columns)] 
-            for i in range(rows)]
+            for _ in range(rows)]
 
-def replace_row(table:list,pos:int,value:list):
+def replace_row(table:list,pos:int,value:list)->list[list[any]]:
     """
     1. Replaces `pos`th row from `table`. 
         1. `pos` is 1-indexed as an argument and is adjusted to be 0-indexed. Any reference to `pos` from this point on is 0-index.
@@ -158,7 +158,7 @@ def replace_row(table:list,pos:int,value:list):
             raise e(f"Row index {pos} in table does not exist.")
         else:
             return table
-def insert_row(table:list,pos:int,value:list):
+def insert_row(table:list,pos:int,value:list)->list[list[any]]:
     """
     1. Insert a list in table's `pos-1`th index. 
         1. `pos` is 1-indexed as an argument and is adjusted to be 0-indexed. Any reference to `pos` from this point on is 0-index.
@@ -167,7 +167,7 @@ def insert_row(table:list,pos:int,value:list):
     pos-=1
     table.insert(pos,value)
     return table
-def replace_col(table:list,pos:int,value:list,ignore_header:bool):
+def replace_col(table:list,pos:int,value:list,ignore_header:bool)->list[any]:
     """
     1. Replaces `pos-1`th column in table with `value` (list). 
         1. `pos` is 1-indexed as an argument and is adjusted to be 0-indexed. Any reference to `pos` from this point on is 0-index.
@@ -178,7 +178,7 @@ def replace_col(table:list,pos:int,value:list,ignore_header:bool):
     for row,new_val in zip(table[1:] if ignore_header else table[:],value):
         row[pos]=new_val
     return table
-def extract_col(table:list,pos:int,ignore_header:bool):
+def extract_col(table:list,pos:int,ignore_header:bool)->list[any]:
     """
     1. Return a list of elements in the `n-1`th position of every row.
         1. `pos` is 1-indexed as an argument and is adjusted to be 0-indexed. Any reference to `pos` from this point on is 0-index.
@@ -192,13 +192,13 @@ def extract_col(table:list,pos:int,ignore_header:bool):
     pos-=1
     return [ row[pos] for row in (table[1:] if ignore_header else table[:]) ]
 
-def d_first_key_is_k(d:dict,k):
+def d_first_key_is_k(d:dict,k)->bool:
     """
     1. Returns True if `k` is the first key in dict `d`, else False.
     """
     return list(d.keys())[0]==k
 
-def apply_dominance_rule(d:dict):
+def apply_dominance_rule(d:dict)->dict[str:tuple[float,int]]:
     """
     1. Return `d` with removed (R,C) valuwa that end up having lower R & higher C when merged.
     2. In Reliability Design, (R,C) values in the merged set (not Python `set()` objects) that have a lower R & higher C than the next pair are removed.
@@ -273,7 +273,7 @@ def apply_dominance_rule(d:dict):
 
     return remove_bpairs_from_d(d=d,bad_pairs=bad_pairs)
 
-def del_dict_key_w_empty_val(d:dict):
+def del_dict_key_w_empty_val(d:dict)->dict[any:iter]:
         """
         1. Returns `d` with removed {k:v} pairs if v is empty.
             1. "Empty" means len(v)==0.
@@ -288,7 +288,7 @@ def del_dict_key_w_empty_val(d:dict):
                 del d[subset]
         return d
 
-def rc_pairs_in_nth_main_set(n:int,all_sets:dict):
+def rc_pairs_in_nth_main_set(n:int,all_sets:dict)->list[tuple[float,int]]:
     # May need a rework
     """
     1. Gets all the (R,C) values of a subset under the `n`th main set, and return all the collected pairs in a list.
@@ -317,7 +317,7 @@ def rc_pairs_in_nth_main_set(n:int,all_sets:dict):
             
         return l
 
-def get_subsets_only_from_all_sets(all_sets:dict):
+def get_subsets_only_from_all_sets(all_sets:dict)->dict[str:list[tuple[float,int]]]:
     """
     1. Return a dict containing only subsets as keys and their respective (R,C) pair as values.
     2. Example:
@@ -327,7 +327,7 @@ def get_subsets_only_from_all_sets(all_sets:dict):
     """
     return {k:v for value in all_sets.values() for k,v in value.items()}
 
-def get_main_set_from_all_sets(all_sets:dict):
+def get_main_set_from_all_sets(all_sets:dict)->dict[str:list[tuple[float,int]]]:
     """
     1. Return a dict containing main sets as keys and their subsets' (R,C) pair as values.
     2. Example:
@@ -337,7 +337,7 @@ def get_main_set_from_all_sets(all_sets:dict):
     """
     return {main_set: [rc_pairs for subset in subsets.values() for rc_pairs in subset ] for main_set,subsets in all_sets.items()}
 
-def main_set_of_rc_pair(rc_pair:tuple,all_main_sets:dict):
+def main_set_of_rc_pair(rc_pair:tuple,all_main_sets:dict)->dict[str:list[tuple[float,int]]]:
     """
     1. Return an 'int' that corresponds to the set number (0-indexed) an (R,C) pair belongs to. If there are duplicate values, the main set of the first match is returned.
     2. Example: 
@@ -351,7 +351,7 @@ def main_set_of_rc_pair(rc_pair:tuple,all_main_sets:dict):
         if rc_pair in rc_pairs:
             return list(all_main_sets.keys()).index(main_set)
         
-def subset_of_rc_pair(rc_pair:tuple,all_subsets:dict):
+def subset_of_rc_pair(rc_pair:tuple,all_subsets:dict)->int:
     """
     1. Return an 'int' that corrsponds to the subset number (1-indexed) that an (R,C) pair belongs to. In Reliability Design, the subset number corresponds to the amount of copies a device is being evaluated as.
     2. Example:
@@ -367,7 +367,7 @@ def subset_of_rc_pair(rc_pair:tuple,all_subsets:dict):
             return int(subset[-1])
 
 
-def find_rc_pair_index_in_all_subsets(rc_pair:tuple,all_subsets:dict):
+def find_rc_pair_index_in_all_subsets(rc_pair:tuple,all_subsets:dict)->int:
       """
       1. Return the index number of an (R,C) pair in its subset group.
       """
@@ -375,15 +375,15 @@ def find_rc_pair_index_in_all_subsets(rc_pair:tuple,all_subsets:dict):
           if rc_pair in rc_pairs:
               return all_subsets[subset].index(rc_pair)
           
-def get_subsets_only_under_nth_main_set(n:int,all_sets:dict):
+def get_subsets_only_under_nth_main_set(n:int,all_sets:dict)->dict[str:list[tuple[float,int]]]:
         main_set_name = f"S^{n}"
         return {k: v for k,v in all_sets[main_set_name].items()}
 
-def len_args_not_equal_to_num(*args,num):
+def len_args_not_equal_to_num(*args,num)->bool:
     num = int(num)
     return any([(len(arg)!=num) for arg in args])
 
-def convert_input_to_list_of_ints(text:str,sep=" "):
+def convert_input_to_list_of_ints(text:str,sep=" ")->list[int]:
     s = input(text)
     try:
         l = [int(i) for i in s.split(sep=sep)]
@@ -392,7 +392,7 @@ def convert_input_to_list_of_ints(text:str,sep=" "):
     else:
         return l
     
-def convert_input_to_list_of_floats(text:str,sep=" "):
+def convert_input_to_list_of_floats(text:str,sep=" ")->list[float]:
     s = input(text)
     try:
         l = [float(i) for i in s.split(sep=sep)]
@@ -401,7 +401,7 @@ def convert_input_to_list_of_floats(text:str,sep=" "):
     else:
         return l
     
-def convert_input_to_int(text:str):
+def convert_input_to_int(text:str)->int:
     s = input(text)
     try:
         i = int(s)
@@ -410,7 +410,7 @@ def convert_input_to_int(text:str):
     else:
         return i
 
-def len_args_equal_to_len_comp(*args,comp):
+def len_args_equal_to_len_comp(*args,comp)->bool:
     for arg in args:
         if len(arg)!=len(comp):
             raise ValueError(f"Length of {arg} must match length of {comp}.")
