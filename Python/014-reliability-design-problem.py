@@ -3,8 +3,8 @@ def main()->None:
         c=convert_input_to_int(text="Enter amount of capital:\n")
         devices= convert_input_to_int(text="Enter number of devices:\n")
         
-        cost=convert_input_to_list_of_ints(text="Enter cost per row. Example input: 30, 40, 50\n",split=",")
-        reliability=convert_input_to_list_of_floats(text="Enter reliability per row. Example input: 0.9, 0.8, 0.7\n",split=",")
+        cost=convert_input_to_list_of_ints(text="Enter cost per row. Example input: 30, 40, 50\n",sep=",")
+        reliability=convert_input_to_list_of_floats(text="Enter reliability per row. Example input: 0.9, 0.8, 0.7\n",sep=",")
 
         if len_args_not_equal_to_num(cost,reliability,num=devices):
             raise RuntimeError("cost or reliability must be the same length as the amount of devices.")
@@ -283,12 +283,12 @@ def del_dict_key_w_empty_val(d:dict)->dict[any:any]:
                 1. Since d[2] refers to an empty list, this pair is now removed.
         """
         d_copy = d.copy()
-        for subset in d_copy.keys():
-            if len(d_copy()[subset])==0:
-                del d[subset]
+        for key in d_copy.keys():
+            if len(d_copy[key])==0:
+                del d[key]
         return d
 
-def rc_pairs_in_nth_main_set(n:int,all_sets:dict)->list[tuple[float,int]]:
+def rc_pairs_in_nth_main_set(n:int,all_sets:dict[str:dict[str:list[tuple[float,int]]]])->list[tuple[float,int]]:
     # May need a rework
     """
     1. Gets all the (R,C) values of a subset under the `n`th main set, and return all the collected pairs in a list.
@@ -317,7 +317,7 @@ def rc_pairs_in_nth_main_set(n:int,all_sets:dict)->list[tuple[float,int]]:
             
         return l
 
-def get_subsets_only_from_all_sets(all_sets:dict)->dict[str:list[tuple[float,int]]]:
+def get_subsets_only_from_all_sets(all_sets:dict[str:dict[str:list[tuple[float,int]]]])->dict[str:list[tuple[float,int]]]:
     """
     1. Return a dict containing only subsets as keys and their respective (R,C) pair as values.
     2. Example:
@@ -327,7 +327,7 @@ def get_subsets_only_from_all_sets(all_sets:dict)->dict[str:list[tuple[float,int
     """
     return {k:v for value in all_sets.values() for k,v in value.items()}
 
-def get_main_set_from_all_sets(all_sets:dict)->dict[str:list[tuple[float,int]]]:
+def get_main_set_from_all_sets(all_sets:dict[str:dict[str:list[tuple[float,int]]]])->dict[str:list[tuple[float,int]]]:
     """
     1. Return a dict containing main sets as keys and their subsets' (R,C) pair as values.
     2. Example:
@@ -337,7 +337,7 @@ def get_main_set_from_all_sets(all_sets:dict)->dict[str:list[tuple[float,int]]]:
     """
     return {main_set: [rc_pairs for subset in subsets.values() for rc_pairs in subset ] for main_set,subsets in all_sets.items()}
 
-def main_set_of_rc_pair(rc_pair:tuple,all_main_sets:dict)->dict[str:list[tuple[float,int]]]:
+def main_set_of_rc_pair(rc_pair:tuple[float,int],all_main_sets:dict[str:list[tuple[float,int]]])->dict[str:list[tuple[float,int]]]:
     """
     1. Return an 'int' that corresponds to the set number (0-indexed) an (R,C) pair belongs to. If there are duplicate values, the main set of the first match is returned.
     2. Example: 
@@ -351,44 +351,76 @@ def main_set_of_rc_pair(rc_pair:tuple,all_main_sets:dict)->dict[str:list[tuple[f
         if rc_pair in rc_pairs:
             return list(all_main_sets.keys()).index(main_set)
         
-def subset_of_rc_pair(rc_pair:tuple,all_subsets:dict)->int:
+def subset_of_rc_pair(rc_pair:tuple[float,int],all_subsets:dict[str:dict[str:list[tuple[float,int]]]])->int:
     """
-    1. Return an 'int' that corrsponds to the subset number (1-indexed) that an (R,C) pair belongs to. In Reliability Design, the subset number corresponds to the amount of copies a device is being evaluated as.
-    2. Example:
-        1. all_subsets = 'S^0_0': [(1, 0)], 'S^1_1': [(0.9, 30)], 'S^1_2': [(0.99, 60)]
+    1. Return an 'int' that corrsponds to the subset number (1-indexed) that an (R,C) pair belongs to. In Reliability Design, the subset number corresponds to the amount of copies a device is being evaluated as. 
+    2. Returns `-1` if the value is not found.
+    3. Example:
+        1. all_subsets = {'S^0_0': [(1, 0)], 'S^1_1': [(0.9, 30)], 'S^1_2': [(0.99, 60)]}
         2. rc_pair = (0.99, 60)
         3. return: 2
-            1. The pair (0.99, 60) is first matched with the subset S^1_2, and this subset is the 2nd subset of S^1.
+            1. The pair (0.99, 60) is first matched with the subset S^1_2, and is the 2nd subset of S^1.
             2. The value corresponds to the amount of copies needed to obtain the (R,C) pair.
-    3. This function relies on the design that the last character of a subset's name is the number of that subset.
+    4. This function relies on the design that the last character of a subset's name is the number of that subset.
+        1. The function `subset_of_rc_pair_()` is a version that doesn't rely on this design.  
     """
     for subset,rc_pairs in all_subsets.items():
         if rc_pair in rc_pairs:
             return int(subset[-1])
+    return -1       
+def subset_of_rc_pair_(rc_pair:tuple[float,int],all_main_sets:dict[str:dict[str:list[tuple[float,int]]]])->int:
+    """
+    1. Return an 'int' that corrsponds to the subset number (1-indexed) that an (R,C) pair belongs to. In Reliability Design, the subset number corresponds to the amount of copies a device is being evaluated as.
+    2. Returns `-1` if the value is not found.
+    3. Example:
+        1. all_main_sets = {'S^0': [(1, 0)], 'S^1': [(0.9, 30), (0.99, 60)], 'S^2': [(0.72, 45), (0.864, 60), (0.8928, 75)]}
+        2. rc_pair = (0.99, 60)
+        3. return: 2
+            1. The pair (0.99, 60) is first matched with the subset S^1_2, and is the 2nd subset of S^1.
+            2. The value corresponds to the amount of copies needed to obtain the (R,C) pair.
+    4. This version takes in `all_main_sets` as input unlike `subset_of_rc_pair()`.
+    """
+    for rc_pairs in all_main_sets.values():
+        if rc_pair in rc_pairs:
+            return rc_pairs.index(rc_pair)+1
+    return -1
 
-
-def find_rc_pair_index_in_all_subsets(rc_pair:tuple,all_subsets:dict)->int:
-      """
-      1. Return the index number of an (R,C) pair in its subset group.
-      """
-      for subset,rc_pairs in all_subsets.items():
-          if rc_pair in rc_pairs:
-              return all_subsets[subset].index(rc_pair)
+def find_rc_pair_index_in_all_subsets(rc_pair:tuple[float,int],all_subsets:dict[str:dict[str:list[tuple[float,int]]]])->int:
+    """
+    1. Return the index number of an (R,C) pair in its subset group.
+    2. Returns `-1` if the value is not found.
+    TODO
+    """
+    for subset,rc_pairs in all_subsets.items():
+        if rc_pair in rc_pairs:
+            return all_subsets[subset].index(rc_pair)
+        
+    return -1
           
-def get_subsets_only_under_nth_main_set(n:int,all_sets:dict)->dict[str:list[tuple[float,int]]]:
-        main_set_name = f"S^{n}"
-        return {k: v for k,v in all_sets[main_set_name].items()}
+def get_subsets_only_under_nth_main_set(n:int,all_sets:dict[str:dict[str:list[tuple[float,int]]]])->dict[str:list[tuple[float,int]]]:
+        """
+        `n` is 0-indexed.
+        TODO
+        """
+        main_set = list(all_sets.keys())[n]
+        return {k: v for k,v in all_sets[main_set].items()}
 
-def len_args_not_equal_to_num(*args,num)->bool:
-    num = int(num)
-    return any([(len(arg)!=num) for arg in args])
+def len_args_not_equal_to_num(*args:iter,num:int)->bool:
+    checker = []
+    try:
+        for arg in args:
+            checker+=[len(arg)!=num]
+    except TypeError:
+        raise TypeError(f"len() cannot be applied to {type(arg)} {arg}.")
+    else:
+        return any(checker)
 
 def convert_input_to_list_of_ints(text:str,sep=" ")->list[int]:
     s = input(text)
     try:
         l = [int(i) for i in s.split(sep=sep)]
     except ValueError:
-        raise ValueError(f"Entered value isn't all convertible to 'int' type: {s}")
+        raise ValueError(f"Entered value cannot convert to 'int' type: {s}")
     else:
         return l
     
@@ -397,7 +429,7 @@ def convert_input_to_list_of_floats(text:str,sep=" ")->list[float]:
     try:
         l = [float(i) for i in s.split(sep=sep)]
     except ValueError:
-        raise ValueError(f"Entered value isn't all convertible to `float` type: {s}")
+        raise ValueError(f"Entered value cannot convert to `float` type: {s}")
     else:
         return l
     
@@ -406,7 +438,7 @@ def convert_input_to_int(text:str)->int:
     try:
         i = int(s)
     except ValueError:
-        raise ValueError(f"Entered value isn't all convertible to 'int' type: {s}")
+        raise ValueError(f"Entered value cannot convert to 'int' type: {s}")
     else:
         return i
 

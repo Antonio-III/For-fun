@@ -1,8 +1,12 @@
-def find_rc_pair_index_in_all_subsets(rc_pair:tuple,all_subsets:dict):
-      for subset,rc_pairs in all_subsets.items():
-          if rc_pair in rc_pairs:
-              return all_subsets[subset].index(rc_pair)
-
+def len_args_not_equal_to_num(*args:iter,num:int)->bool:
+    checker = []
+    try:
+        for arg in args:
+            checker+=[len(arg)!=num]
+    except TypeError:
+        raise TypeError(f"len() cannot be applied to {type(arg)} {arg}.")
+    else:
+        return any(checker)
 
 
 
@@ -21,6 +25,6 @@ devices = 3
 d = {'S^0_0': [(1, 0)]}
 d2={'S^1_1': [(0.9, 30)], 'S^1_2': [(0.99, 60)]}
 
-out = find_rc_pair_index_in_all_subsets(rc_pair=(0.8928, 75), all_subsets=all_subsets)
+out = len_args_not_equal_to_num([1,2,3], {4: 5, 6: 7, 8: 9}, (10, 11), num=3)
 print(out)
 
