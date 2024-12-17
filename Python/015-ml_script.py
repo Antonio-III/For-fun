@@ -18,6 +18,9 @@ from sklearn.metrics import accuracy_score, classification_report
 # Metrics for LinearRegression
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
+
+import random 
+
 SUPPORTED_MODELS= {"KNeighborsClassifier": KNeighborsClassifier(),
                     "LinearRegression": LinearRegression(),
                     "DecisionTreeClassifier": DecisionTreeClassifier()}
@@ -36,6 +39,7 @@ def args_match_dtype(*args,dtype):
         if val ==False:
             raise Exception(f"Cannot convert {arg} to {dtype}.")
 
+# Check functions
 def args_are_str(*args):
     return args_match_dtype(args,dtype=str)
 def args_are_int(*args):
@@ -171,15 +175,15 @@ def model_evalution(model_type:str,y_test,y_pred):
     return output
 
 if __name__ == "__main__":
-    dataset = input("Enter dataset path including the dataset file itself. Must be in your computer directory:\n")
-    dependent_var = input("Enter dependent variable (i.e. the variable you want to predict):\n")
+    dataset = input("Enter dataset path including the dataset file itself. Path must be in your computer directory:\n")
+    dependent_var = input("Enter dependent variable (i.e. the column name of the variable you want to predict):\n")
     str_in_data = input("Are there textual data in the dataset (y/n)?\n")
     str_data_present = True if str_in_data.lower().startswith("y")=="y" else False
-    str_columns = input("Enter column names (must be exactly as they appear in the file) that have textual values, separated by a comma:\n").split(",")
-    random_state= int(input("Enter seed:\n"))
-    test_size = float(input("Enter test size. Must be a float number:\n"))
-    model_used = input("Enter model used. Must match the class name:\n")
-
+    str_columns = input("Enter column names (must be exactly as they appear in the dataset) that have textual values, separated by a comma:\n").split(",")
+    seed = int(input("Enter seed (Enter -1 to auto generate seed):\n"))
+    random_state = seed if seed!=-1 else random.randrange(2**32-1)
+    test_size = int(input("Enter the test/train split for test size (E.g. 70 if 70/30):\n"))/100
+    model_used = input(f"Enter model used. Must match the name. Supported models:\n{list(MODEL_TYPES.keys())}")
     output = model_predict(dataset=dataset,dependent_var=dependent_var,str_data_present=str_data_present,str_columns=str_columns,random_state=random_state,test_size=test_size,model_used=model_used)
     for result in output:
         print(result)

@@ -351,7 +351,7 @@ def main_set_of_rc_pair(rc_pair:tuple[float,int],all_main_sets:dict[str:list[tup
         if rc_pair in rc_pairs:
             return list(all_main_sets.keys()).index(main_set)
         
-def subset_of_rc_pair(rc_pair:tuple[float,int],all_subsets:dict[str:dict[str:list[tuple[float,int]]]])->int:
+def subset_of_rc_pair(rc_pair:tuple[float,int],all_subsets:dict[str:list[tuple[float,int]]])->int:
     """
     1. Return an 'int' that corrsponds to the subset number (1-indexed) that an (R,C) pair belongs to. In Reliability Design, the subset number corresponds to the amount of copies a device is being evaluated as. 
     2. Returns `-1` if the value is not found.
@@ -385,7 +385,7 @@ def subset_of_rc_pair_(rc_pair:tuple[float,int],all_main_sets:dict[str:dict[str:
             return rc_pairs.index(rc_pair)+1
     return -1
 
-def find_rc_pair_index_in_all_subsets(rc_pair:tuple[float,int],all_subsets:dict[str:dict[str:list[tuple[float,int]]]])->int:
+def find_rc_pair_index_in_all_subsets(rc_pair:tuple[float,int],all_subsets:dict[str:list[tuple[float,int]]])->int:
     """
     1. Return the index number of an (R,C) pair in its subset group.
     2. Returns `-1` if the value is not found.
@@ -397,13 +397,17 @@ def find_rc_pair_index_in_all_subsets(rc_pair:tuple[float,int],all_subsets:dict[
         
     return -1
           
-def get_subsets_only_under_nth_main_set(n:int,all_sets:dict[str:dict[str:list[tuple[float,int]]]])->dict[str:list[tuple[float,int]]]:
+def subsets_under_nth_main_set(n:int,all_sets:dict[str:dict[str:list[tuple[float,int]]]])->dict[str:list[tuple[float,int]]]:
         """
-        `n` is 0-indexed.
-        TODO
+        1. Return a dict corresponding to the subsets under a given main set.
+        2. Main set is 0-indexed.
+        3. Empty dict is returned if index is out of range.
         """
-        main_set = list(all_sets.keys())[n]
-        return {k: v for k,v in all_sets[main_set].items()}
+        try:
+            main_set = list(all_sets.keys())[n]
+        except IndexError:
+            return {}
+        return all_sets[main_set]
 
 def len_args_not_equal_to_num(*args:iter,num:int)->bool:
     checker = []
