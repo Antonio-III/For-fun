@@ -77,8 +77,7 @@ def main():
 # Summary: Rewrite the inputted file into a new file. Can remove columns.
 
                     #0
-def create_mod_file( input_file_dir: str, output_file_name: str, include_columns: list, col_num_of_conds: list = [], conds_must_be: list = [], 
-                    keep_header: bool = True ):
+def create_mod_file( input_file_dir: str, output_file_name: str, include_columns: list, col_num_of_conds: list = [], conds_must_be: list = [], keep_header: bool = True ):
     #1.
     input_file = filtered_rows( input_file_dir, col_num_of_conds, conds_must_be, keep_header )
     #2.
@@ -351,7 +350,6 @@ def is_decimal_num(n: str, index = 0):
         return False
     
     return new_n[index].isdecimal() or is_decimal_num(n, index+1) # supports `.2` decimals 
-
 
 main()
 

@@ -86,10 +86,10 @@ def solv_reliability_design(c:int,devices:int,cost:list,reliability:list,startin
 
     table = replace_row(table=table,pos=1,value=HEADER_COLS)
 
-    table = replace_col(table=table,pos=1,value=D_i,ignore_header=True)
-    table = replace_col(table=table,pos=2,value=cost,ignore_header=True)
-    table = replace_col(table=table,pos=3,value=reliability,ignore_header=True)
-    table = replace_col(table=table,pos=4,value=U_i,ignore_header=True)
+    table = replace_col(table=table,pos=1,new_value=D_i,ignore_header=True)
+    table = replace_col(table=table,pos=2,new_value=cost,ignore_header=True)
+    table = replace_col(table=table,pos=3,new_value=reliability,ignore_header=True)
+    table = replace_col(table=table,pos=4,new_value=U_i,ignore_header=True)
 
     c_i = extract_col(table=table,pos=2,ignore_header=True)
     r_i = extract_col(table=table,pos=3,ignore_header=True)
@@ -138,8 +138,7 @@ def create_table(rows:int,columns:int)->list[list[int]]:
         row 1 -> [[0,0,0],
         row 2 -> [0,0,0]]
     """
-    return [ [0*j for j in range(columns)] 
-            for _ in range(rows)]
+    return [ [0*j for j in range(columns)] for _ in range(rows)]
 
 def replace_row(table:list,pos:int,value:list)->list[list[any]]:
     """
@@ -167,7 +166,7 @@ def insert_row(table:list,pos:int,value:list)->list[list[any]]:
     pos-=1
     table.insert(pos,value)
     return table
-def replace_col(table:list,pos:int,value:list,ignore_header:bool)->list[any]:
+def replace_col(table:list,pos:int,new_value:list,ignore_header:bool)->list[any]:
     """
     1. Replaces `pos-1`th column in table with `value` (list). 
         1. `pos` is 1-indexed as an argument and is adjusted to be 0-indexed. Any reference to `pos` from this point on is 0-index.
@@ -175,7 +174,7 @@ def replace_col(table:list,pos:int,value:list,ignore_header:bool)->list[any]:
         Ignoring header means to slice table as table[1:] instead of table[:].
     """
     pos-=1
-    for row,new_val in zip(table[1:] if ignore_header else table[:],value):
+    for row,new_val in zip(table[1:] if ignore_header else table[:],new_value):
         row[pos]=new_val
     return table
 def extract_col(table:list,pos:int,ignore_header:bool)->list[any]:

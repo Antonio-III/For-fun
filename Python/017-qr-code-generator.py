@@ -1,13 +1,12 @@
 import qrcode
 import os
 
-
 def main(data:str,file_name:str)->None:
     """
     Generates and downloads the QR code, and outputs the QR code image's path.
     """
     generate_qrcode(data,file_name=file_name)
-    print(f"Image saved as: {os.getcwd()}\\{file_name}")
+    print(f"Encoded '{data}' in: {os.getcwd()}\\{file_name}")
 
 def generate_qrcode(data:str,file_name:str)->None:
     """
@@ -18,7 +17,7 @@ def generate_qrcode(data:str,file_name:str)->None:
 if __name__=="__main__":
     FILE_NAME="qrcode.png"
     try:
-        data=input("Enter data to encode to the QR code:\n")
+        data=input("Enter data to encode to the QR code (Right-click to paste an item):\n")
     except KeyboardInterrupt:
         print("Program stopped.")
     else:
