@@ -1,35 +1,28 @@
 def main(c:dict,e:dict)->None:
     """
-    1. Outputs the Cohen's d using data from C[ontrol] and E[xperiment].
+    1. Prints Cohen's d (effect size) using data from Control and Experiment. Only usable if this is module is directly run.
+        1. See most bottom line to see what the values are. 
     """
-    n=(0,c["n"],e["n"])
-    mean=(0,c["mean"],e["mean"])
-    std=(0,c["std"],e["std"])
-    
-    equal_n,non_equal_n=calculate_pooled_std(std,n)
-    pooled_std = equal_n if c["n"]==e["n"] else non_equal_n
+    n=[0,c["n"],e["n"]] # optional to update
 
-    cohen_d=calculate_cohens_d(mean,pooled_std)
-    print(cohen_d)
+    mean=[0,c["mean"],e["mean"]]
+    std=[0,c["std"],e["std"]]
+    pooled_std=pooled_std_for_cohen_d(std)
+
+    effect_size=calculate_cohens_d(mean,pooled_std)
+    print(f"Effect size: {effect_size}")
 
     return None
 
-def calculate_pooled_std(std:tuple,n:tuple)->tuple:
+def pooled_std_for_cohen_d(std:tuple)->float:
     """
-    1. Returns pooled standard devation of equal and non-equal-sized samples.
-    """
-    return pooled_std_equal(std),pooled_std_not_equal(std,n)
-
-def pooled_std_equal(std:tuple)->float:
-    """
-    1. Use this function if you are assuming the sample sizes are equal.
-    2. Returns the resulting pooled std by adding 2 groups' standard deviation squared and dividing by 2, and taking the square root of this number.
+    1. Returns the pooled standard deviation of 2 groups.
     """
     return ((std[1]**2+std[2]**2)/2)**0.5
     
-def pooled_std_not_equal(std:tuple,n:tuple)->float:
+def pooled_std_for_cohen_d_alt(std:tuple,n:tuple)->float:
         """
-        1. Use this function if you are assuming the sample sizes aren't equal.
+        1. Returns the pooled standard deviation of 2 groups using an alternative formula. 
         """
         numerator=(n[1]-1)*(std[1]**2)+(n[2]-1)*(std[2]**2)
         denominator=n[1]+n[2]-2
@@ -38,7 +31,7 @@ def pooled_std_not_equal(std:tuple,n:tuple)->float:
 
 def calculate_cohens_d(mean:tuple,pooled_std:float):
     """
-    1. Size effect interpretation, though you should be flexible in interpretation of your Cohen's d instead of using this as the standard for all contexts.
+    1. Effect size interpretation, though you should not be the standard for all contexts.
         1. Very small = 0.01
         1. Small = 0.2.
         2. Medium = 0.5.
@@ -47,6 +40,8 @@ def calculate_cohens_d(mean:tuple,pooled_std:float):
         5. Huge = 2.
     """
     return (abs(mean[1]-mean[2]))/pooled_std
+
+
 if __name__=="__main__":
     # These data are from my csv file projects.
     C={"n":16,"mean":8.750000,"std":4.343578}
