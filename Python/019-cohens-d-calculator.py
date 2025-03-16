@@ -1,9 +1,10 @@
+import pandas as pd
+
 def main(c:dict,e:dict)->None:
     """
-    1. Prints Cohen's d (effect size) using data from Control and Experiment. Only usable if this is module is directly run.
-        1. See most bottom line to see what the values are. 
+    1. Prints Cohen's d (effect size) using data from Control and Experiment. Only usable if this module is directly run.
+        1. See most bottom line of the module to see what the values are. 
     """
-    n=[0,c["n"],e["n"]] # optional to update
 
     mean=[0,c["mean"],e["mean"]]
     std=[0,c["std"],e["std"]]
@@ -43,7 +44,16 @@ def calculate_cohens_d(mean:tuple,pooled_std:float):
 
 
 if __name__=="__main__":
-    # These data are from my csv file projects.
-    C={"n":16,"mean":8.750000,"std":4.343578}
-    E={"n":18,"mean":8.777778,"std":3.370382}
-    main(C,E)
+    SCORE="Score"
+    CONTROL_GROUP_DIR=rf"{input('Enter directory including the file of the control group dataset.')}"
+    EXPERIMENTAL_GROUP_DIR=rf"{input('Enter directory including the file of the experimental group dataset.')}"
+    if not CONTROL_GROUP_DIR and not EXPERIMENTAL_GROUP_DIR:
+        raise ValueError("Not valid directory.")
+    C=pd.read_csv(CONTROL_GROUP_DIR)
+    E=pd.read_csv(EXPERIMENTAL_GROUP_DIR)
+    c={"n":len(C.index),"mean":C[SCORE].mean(),"std":C[SCORE].std()}
+    e={"n":len(E.index),"mean":E[SCORE].mean(),"std":E[SCORE].std()}
+    c_stats=f"Control: {c["n"]}, Mean: {c["mean"]}, STD: {c["std"]}."
+    e_stats=f"Experimental: {e["n"]}, Mean: {e["mean"]}, STD: {e["std"]}."
+    print(f"{c_stats}\n{e_stats}")
+    main(c,e)

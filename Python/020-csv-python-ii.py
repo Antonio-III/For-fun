@@ -1,11 +1,11 @@
 def main(dir:str,col_num:int)->None:
     table=get_csv_data(dir)
     scores=extract_col(table,col_num,False)
-    new_scores=modify_column(scores)
+    new_scores=modify_column(scores, col_num)
     table=replace_col(table,col_num,new_scores,False)
 
     replace_csv_data(dir,table)
-    input("Process completed. Press 'enter' to exit.\n")
+    print("Process completed.")
 
 def get_csv_data(dir:str)->list[str]:
     """
@@ -26,11 +26,14 @@ def replace_csv_data(dir:str,new_content:list[str])->None:
     write_to_file(dir,new_content)
     return None
 
-def modify_column(column:list)->list[str]:
+def modify_column(column:list, col_num:int)->list[str]:
     """
-    1. User instructions on how to modify the target column.
+    1. Replace the target column's inputted text with another inputted text.
     """
-    return [score.replace(" / 20","") for score in column]
+    input(f"You have selected to replace/strip column number {col_num}'s (1-indexed) values. Press Enter to continue, or Ctrl+C to stop.")
+    target_text=input("Target text to be replaced:\n")
+    replace_text=input("Replace it with (Press Enter to replace it with nothing):\n")
+    return [score.replace(target_text,replace_text) for score in column]
 
 
 
@@ -38,7 +41,7 @@ def modify_column(column:list)->list[str]:
 def replace_col(table:list,pos:int,new_value:list,ignore_header:bool)->list[any]:
     """
     1. Replaces `pos-1`th column in table with `value` (list). 
-        1. `pos` is 1-indexed as an argument and is adjusted to be 0-indexed. Any reference to `pos` from this point on is 0-index.
+        1. `pos` is 1-indexed as an argument.
     2. Has an option to ignore header.
         Ignoring header means to slice table as table[1:] instead of table[:].
     """
@@ -49,7 +52,7 @@ def replace_col(table:list,pos:int,new_value:list,ignore_header:bool)->list[any]
 def extract_col(table:list,pos:int,ignore_header:bool)->list[any]:
     """
     1. Return a list of elements in the `n-1`th position of every row.
-        1. `pos` is 1-indexed as an argument and is adjusted to be 0-indexed. Any reference to `pos` from this point on is 0-index.
+        1. `pos` is 1-indexed as an argument.
     2. Has an option to ignore the first row (ignore_header:bool).
     3. Example: extract_col(table=table,n=1,ignore_header=True):
         1. if table =  [[1,2,3],
@@ -73,8 +76,8 @@ def write_to_file(dir:str,new_content:list)->None:
     return None
 
 if __name__=="__main__":
-    input("You have to make the instruction yourself on how the selected column is to be modified. Press 'enter' to continue.\n")
-    DIR=input("Enter directory of the csv file you want to modify:\n")
+    input("You have to write the code yourself on how the selected column is to be modified. Press Enter to continue.")
+    DIR=input("Enter directory of the csv file you want to modify. This directory must point to a .csv file:\n").strip(""" "'""")
     COL_NUM=int(input("Enter column number (1-indexed) that you want to modify:\n"))
    
     main(fr"{DIR}",COL_NUM)
