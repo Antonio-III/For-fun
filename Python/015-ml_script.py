@@ -94,7 +94,7 @@ def model_predict(dataset:str,
         df = load_dataset(dataset=dataset)
 
         print(f"Dataset head:\n{df.head()}")
-        print("Dataset loading complete.\n")
+        print("Dataset loading complete.")
 
         # Visualization
         visualize_data(df=df) if not str_data_present else None
@@ -104,24 +104,24 @@ def model_predict(dataset:str,
 
         print(f"Features (X):\n{X.head()}")
         print(f"Features (y):\n{y.head()}")
-        print("Data cleaning complete.\n")
+        print("Data cleaning complete.")
 
         # 3. Data splitting
         X_train, X_test, y_train, y_test = data_splitting(X,y,test_size=test_size,random_state=random_state)
 
         print(f"Training set size: {X_train.shape[0]}.")
         print(f"Test set size:{X_test.shape[0]}.")
-        print("Data splitting complete.\n")
+        print("Data splitting complete.")
 
         # 4. Model training.
         model = model_training(model_used=model_used,X_train=X_train,y_train=y_train)
 
-        print("Model training complete.\n")
+        print("Model training complete.")
 
         # 5. Model testing.
 
         y_pred = model_testing(model=model,X_test=X_test)
-        print("Model testing complete.\n")
+        print("Model testing complete.")
 
         # 6. Model evaluation.
         
