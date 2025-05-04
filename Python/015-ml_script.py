@@ -94,7 +94,7 @@ def model_predict(dataset:str,
         df = load_dataset(dataset=dataset)
 
         print(f"Dataset head:\n{df.head()}")
-        print("Dataset loading complete.")
+        print("Dataset loading complete.\n")
 
         # Visualization
         visualize_data(df=df) if not str_data_present else None
@@ -121,7 +121,7 @@ def model_predict(dataset:str,
         # 5. Model testing.
 
         y_pred = model_testing(model=model,X_test=X_test)
-        print("Model testing complete.")
+        print("Model testing complete.\n")
 
         # 6. Model evaluation.
         
