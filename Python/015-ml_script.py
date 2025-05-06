@@ -87,35 +87,7 @@ def all_inputs_valid(**kwargs) -> bool:
 
     checks = (check_1, check_2, check_3)
     return checks
-# ---- End of check functions ----
-
-def main() -> None:
-    """
-    This script goes through all the Machine Learning steps and outputs its classification and regression score. The script iterates through multiple Models to get their corresponding results. This means that whatever values are in global SUPPORTED_MODELS, those are the Models whose classification and regression score will be outputted at the end of the program.
-    """
-    if script_intro():
-            persistent_values = set_persistent_values()
-            for value in persistent_values:
-                print(value)
-
-            final_results = {}
-
-            for model in SUPPORTED_MODELS.keys():
-
-                print(f"Using Model: {model}.")
-                model_used = SUPPORTED_MODELS[model]
-
-                final_results[model] = model_predict(*persistent_values, model_used=model_used)
-
-            for model in final_results.keys():
-                print(f"Using {model}, its results are:")
-                for result in final_results[model]:
-                    print(result)
-                    
-            print(f"Visit {CODEGUARDIAN_LINK} for more programs.")
-
-            print("Program exit.")
-            
+# ---- End of check functions ----            
 
 # Model function
 def model_predict(dataset: str,
@@ -350,7 +322,7 @@ def generate_random_seed(ommit_error: bool = False) -> int:
     random_state = random.randrange(MAX_SEED)
     return random_state
 
-def script_intro():
+def script_intro() -> bool:
     """
     Intro for the script. Gives the user a choice to continue or exit the script.
     """
@@ -368,14 +340,44 @@ def script_intro():
         print("Program exit.")
     else:
         return True
+    
+def main() -> None:
+    """
+    This script goes through all the Machine Learning steps and outputs its classification and regression score. The script iterates through multiple Models to get their corresponding results. This means that whatever values are in global SUPPORTED_MODELS, those are the Models whose classification and regression score will be outputted at the end of the program.
+    """
+    if script_intro():
+            persistent_values = set_persistent_values()
+            for value in persistent_values:
+                print(value)
+
+            final_results = {}
+
+            for model in SUPPORTED_MODELS.keys():
+
+                print(f"Using Model: {model}.")
+                model_used = SUPPORTED_MODELS[model]
+
+                final_results[model] = model_predict(*persistent_values, model_used=model_used)
+
+            for model in final_results.keys():
+                print(f"Using {model}, its results are:")
+                for result in final_results[model]:
+                    print(result)
+
+            print("Results finished.")
+
+            print(f"Visit {CODEGUARDIAN_LINK} for more programs.")
+
+            print("Program exit.")
+
 def set_persistent_values() -> tuple:
     """
     Set the variables that will be used throughout the function `get_outcome`.
     """
-    dataset = input("Enter dataset path including the dataset file itself. Path must be in your computer directory:\n").strip('"').strip("'")
+    dataset_dir = input("Enter dataset path including the dataset file itself. Path must be in your computer directory:\n").strip('"').strip("'")
 
     # Let the user see the column names
-    df = load_dataset(dataset=dataset)
+    df = load_dataset(dataset_dir=dataset_dir)
     print(f"Dataset Columns. Remember the column names\n: {df.head()}")
     
     dependent_var = input("Enter dependent variable (i.e. the column name of the variable you want to predict values of, case-sensitive):\n")
@@ -391,9 +393,9 @@ def set_persistent_values() -> tuple:
 
     random_state = set_random_state(seed)
 
-    test_size = int(input("Enter the train/test split for TRAINING size (E.g. 70 if 70% training and 30% test):\n"))/100
+    test_size = int(input("Enter the train/test split for TEST size (E.g. 30 if 70% training and 30% test):\n"))/100
 
-    return dataset, dependent_var, str_in_data, str_columns_dum, str_columns_cvector, random_state, test_size
+    return dataset_dir, dependent_var, str_in_data, str_columns_dum, str_columns_cvector, random_state, test_size
 
 def set_str_columns(algorithm: str) -> list:
     """
@@ -412,6 +414,4 @@ def set_str_columns(algorithm: str) -> list:
        
 if __name__ == "__main__":
     main()
-            
-
     
