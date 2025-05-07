@@ -49,46 +49,6 @@ R_SQ_TEMPLATE = "Mean Squared Error: {mean_sq_err}\nMean Absolute Error: {mean_a
 
 TEXT_CONVERSION_MESSAGE = "Text conversion using {} done."
 
-# Check functions
-def args_match_dtype(*args: any, dtype: any) -> bool:
-    results = []
-    for arg in args:
-        try:
-            results.append(type(arg)==dtype)
-        except ValueError:
-            print(f"Incorrect data type. '{arg}' cannot be converted to intended type: {dtype}.")
-            return False
-        else:
-            return all(results)
-        
-
-def args_are_str(*args: tuple) -> bool:
-    return args_match_dtype(*args, dtype = str)
-
-def args_are_int(*args: tuple) -> bool:
-    return args_match_dtype(*args, dtype = int)
-
-def args_are_float(*args: tuple) -> bool:
-    return args_match_dtype(*args, dtype = float)
-
-def args_are_list(*args: tuple) -> bool:
-    return args_match_dtype(*args, dtype = list)
-
-def args_are_bool(*args: tuple) -> bool:
-    return args_match_dtype(*args, dtype = bool)   
-
-def all_inputs_valid(**kwargs) -> bool:    
-    """
-    Checks if inputted values meet the same data type in the model_predict function. Some data types should be converted to their respective data types. For instance, the value for test_size should be convertible to float data type.
-    """
-    check_1 = args_are_str(kwargs["dataset"], kwargs["dependent_var"])
-    check_2 = args_are_int(kwargs["random_state"])
-    check_3 = args_are_float(kwargs["test_size"])
-
-    checks = (check_1, check_2, check_3)
-    return checks
-# ---- End of check functions ----            
-
 # Model function
 def model_predict(dataset: str,
                   dependent_var: str,
@@ -99,68 +59,62 @@ def model_predict(dataset: str,
                   test_size: float,
                   model_used: str,
                  ) -> tuple:  
+    
+    # 1.2 Loading dataset.
+    print("Loading dataset...")
 
-    if all_inputs_valid(dataset = dataset,
-                        dependent_var = dependent_var, 
-                        random_state = random_state,
-                        test_size = test_size,
-                        ):
-        
-        # 1.2 Loading dataset.
-        print("Loading dataset...")
+    df = load_dataset(dataset_dir=dataset)
 
-        df = load_dataset(dataset_dir=dataset)
+    # Since we are outputting the head before this (model_predict) is called, the code directly below has been ommitted.
+    # print(f"Dataset head:\n{df.head()}")
+    print("Dataset loading complete.")
 
-        # Since we are outputting the head before this (model_predict) is called, the code directly below has been ommitted.
-        # print(f"Dataset head:\n{df.head()}")
-        print("Dataset loading complete.")
+    # 2. Data cleaning/preprocessing.
+    print("Starting data preprocessing...")
+    
+    X,y = data_preprocessing(df=df, dependent_var=dependent_var,str_in_data=str_in_data, str_columns_dum=str_columns_dum, str_columns_cvector=str_columns_cvector)
 
-        # 2. Data cleaning/preprocessing.
-        print("Starting data preprocessing...")
-        
-        X,y = data_preprocessing(df=df, dependent_var=dependent_var,str_in_data=str_in_data, str_columns_dum=str_columns_dum, str_columns_cvector=str_columns_cvector)
+    print(f"Features (X):\n{X.head()}")
+    print(f"Features (y):\n{y.head()}")
+    
+    print("Data cleaning complete.")
 
-        print(f"Features (X):\n{X.head()}")
-        print(f"Features (y):\n{y.head()}")
-        
-        print("Data cleaning complete.")
+    # Visualization
+    if not str_in_data:
+        print(df.head())
+        visualize_data(df=df)
 
-        # Visualization
-        if not str_in_data:
-            print(df.head())
-            visualize_data(df=df)
+    # 3. Data splitting
+    print("Starting data splitting...")
+    
+    X_train, X_test, y_train, y_test = data_splitting(X, y, test_size = test_size, random_state = random_state)
 
-        # 3. Data splitting
-        print("Starting data splitting...")
-        
-        X_train, X_test, y_train, y_test = data_splitting(X, y, test_size = test_size, random_state = random_state)
+    print(f"Training set size: {X_train.shape[0]}.")
+    print(f"Test set size:{X_test.shape[0]}.")
+    print("Data splitting complete.")
 
-        print(f"Training set size: {X_train.shape[0]}.")
-        print(f"Test set size:{X_test.shape[0]}.")
-        print("Data splitting complete.")
+    # 4. Model training.
+    print("Starting model training...")
 
-        # 4. Model training.
-        print("Starting model training...")
+    model = model_training(model_used=model_used, 
+    X_train=X_train, y_train=y_train)
 
-        model = model_training(model_used=model_used, 
-        X_train=X_train, y_train=y_train)
+    print("Model training complete.")
 
-        print("Model training complete.")
+    # 5. Model testing.
+    print("Starting model training...")
 
-        # 5. Model testing.
-        print("Starting model training...")
+    y_pred = model_testing(model=model, X_test=X_test)
+    
+    print("Model testing complete.")
 
-        y_pred = model_testing(model=model, X_test=X_test)
-        
-        print("Model testing complete.")
+    # 6. Model evaluation.
+    print("Starting model evaluation...")
 
-        # 6. Model evaluation.
-        print("Starting model evaluation...")
+    output = model_evalution(y_test = y_test, y_pred = y_pred)
 
-        output = model_evalution(y_test = y_test, y_pred = y_pred)
-
-        print("Model evaluation complete.")
-        return output
+    print("Model evaluation complete.")
+    return output
     
 def load_dataset(dataset_dir: str) -> pd.DataFrame:
     """
@@ -346,7 +300,7 @@ def main() -> None:
     This script goes through all the Machine Learning steps and outputs its classification and regression score. The script iterates through multiple Models to get their corresponding results. This means that whatever values are in global SUPPORTED_MODELS, those are the Models whose classification and regression score will be outputted at the end of the program.
     """
     if script_intro():
-            persistent_values = set_persistent_values()
+            persistent_values = set_script_variables()
             for value in persistent_values:
                 print(value)
 
@@ -370,7 +324,7 @@ def main() -> None:
 
             print("Program exit.")
 
-def set_persistent_values() -> tuple:
+def set_script_variables() -> tuple:
     """
     Set the variables that will be used throughout the function `get_outcome`.
     """
@@ -378,7 +332,7 @@ def set_persistent_values() -> tuple:
 
     # Let the user see the column names
     df = load_dataset(dataset_dir=dataset_dir)
-    print(f"Dataset Columns. Remember the column names\n: {df.head()}")
+    print(f"Dataset Columns. Remember the column names:\n: {df.head()}")
     
     dependent_var = input("Enter dependent variable (i.e. the column name of the variable you want to predict values of, case-sensitive):\n")
 
