@@ -113,7 +113,7 @@ def model_predict(dataset: str,
 
     output = model_evalution(y_test = y_test, y_pred = y_pred)
 
-    print("Model evaluation complete.")
+    print("Model evaluation complete.\n")
     return output
     
 def load_dataset(dataset_dir: str) -> pd.DataFrame:
@@ -301,8 +301,6 @@ def main() -> None:
     """
     if script_intro():
             persistent_values = set_script_variables()
-            for value in persistent_values:
-                print(value)
 
             final_results = {}
 
