@@ -44,8 +44,8 @@ NO_SEED_INPUT= -1
 
 FIRST_RESULT = "Classification Result"
 
-CLASSIFICATION_RESULT_TEMPLATE = "Accuracy score: {accuracy_sc}\nClassification Report: {classification_re}"
-R_SQ_TEMPLATE = "Mean Squared Error: {mean_sq_err}\nMean Absolute Error: {mean_abs_err}\nR Squared Score: {rsq_sc}"
+CLASSIFICATION_RESULT_TEMPLATE = "Accuracy score: {accuracy_sc}\nClassification Report:\n{classification_re}"
+R_SQ_TEMPLATE = "Mean Squared Error: {mean_sq_err}\nMean Absolute Error: {mean_abs_err}\nR Squared Score: {rsq_sc}\n"
 
 TEXT_CONVERSION_MESSAGE = "Text conversion using {} done."
 
@@ -90,7 +90,7 @@ def model_predict(dataset: str,
     X_train, X_test, y_train, y_test = data_splitting(X, y, test_size = test_size, random_state = random_state)
 
     print(f"Training set size: {X_train.shape[0]}.")
-    print(f"Test set size:{X_test.shape[0]}.")
+    print(f"Test set size: {X_test.shape[0]}.")
     print("Data splitting complete.")
 
     # 4. Model training.
@@ -360,10 +360,9 @@ def set_str_columns(algorithm: str) -> list:
 
         "dum": "are categorical (columns that have values like red/blue/green; yes/no; high/low, etc.)"
         }
- 
-  
+    
     return input(prompt.format(algorithm=algorithms_desc[algorithm])).split()
-       
+
 if __name__ == "__main__":
     main()
     
